@@ -47,3 +47,63 @@ body {
 .cabecera__nav a:focus {
     text-decoration: underline;
 }
+
+/* =========================================
+   4. UTILIDADES
+   ========================================= */
+
+/* Oculta un elemento a la vista pero lo deja para los lectores de pantalla.
+   Es la forma estándar de hacerlo; "display: none" lo ocultaría también para ellos. */
+.visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* Margen interior para el contenido de cada página */
+.contenedor {
+    padding: var(--espacio);
+}
+
+/* =========================================
+   5. BUSCADOR
+   ========================================= */
+.buscador {
+    display: flex;               /* caja de texto y botón en fila */
+    gap: 0.5rem;                 /* separación entre los dos */
+}
+
+.buscador__input {
+    flex: 1;                     /* ocupa todo el ancho que sobre */
+    padding: 0.75rem;
+    font-size: 1rem;             /* 16px mínimo: si es menor, el iPhone hace zoom al tocarlo */
+    color: var(--color-texto);
+    background-color: var(--color-superficie);
+    border: 1px solid var(--color-texto-suave);
+    border-radius: var(--radio);
+}
+
+/* Cuando la caja está seleccionada, el borde toma tu color de acento */
+.buscador__input:focus {
+    outline: none;
+    border-color: var(--color-acento);
+}
+
+.buscador__boton {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--color-fondo);   /* texto oscuro sobre el botón de color */
+    background-color: var(--color-acento);
+    border: none;
+    border-radius: var(--radio);
+    cursor: pointer;             /* manita al pasar el ratón */
+}
+
+.buscador__boton:hover,
+.buscador__boton:focus {
+    filter: brightness(1.1);     /* un poco más claro al pasar el ratón o con Tab */
+}

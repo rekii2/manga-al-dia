@@ -21,8 +21,20 @@
     </header>
 
     <!-- Contenido principal de la página: aquí irá el buscador -->
-    <main>
-
+    <main class="contenedor">
+        <form class="buscador" role="search">
+            <label for="busqueda" class="visualmente-oculto">Buscar serie</label>
+            <input
+                type="search"
+                id="busqueda"
+                name="q"
+                class="buscador__input"
+                placeholder="Solo Leveling, One Piece..."
+                autocomplete="off"
+                required
+            >
+            <button type="submit" class="buscador__boton">Buscar</button>
+        </form>
     </main>
 </body>
 </html>
