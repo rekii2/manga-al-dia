@@ -347,6 +347,7 @@ body {
 
 /* Fila de pestañas que se desliza de lado si no cabe */
 .pestanas {
+    scrollbar-width: none;      /* oculta la barra de desplazamiento */
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;           /* scroll horizontal si no caben */
