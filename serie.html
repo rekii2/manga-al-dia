@@ -4,24 +4,23 @@
     <meta charset="UTF-8">
     <!-- Hace que en el móvil la página se vea a su tamaño real, sin alejarse -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de serie - Manga al Día</title>
+    <title>Ficha de serie · Manga al Día</title>
     <!-- Conecta la hoja de estilos. La ruta es relativa a este archivo -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Cabecera: se repetirá igual en las tres páginas -->
+    <!-- Cabecera: igual en las tres páginas -->
     <header class="cabecera">
-        <!-- Logo + nombre. De momento solo texto; el logo irá aquí más adelante -->
         <a href="index.html" class="cabecera__logo">Manga al Día</a>
 
-        <!-- Navegación entre páginas -->
         <nav class="cabecera__nav">
             <a href="biblioteca.html">Mi biblioteca</a>
         </nav>
     </header>
 
     <main class="contenedor">
-                <!-- article: contenido que tiene sentido por sí solo (la ficha de UNA serie) -->
+
+        <!-- article: contenido que tiene sentido por sí solo (la ficha de UNA serie) -->
         <article class="ficha">
 
             <!-- Imagen de fondo de la serie (banner). Es decorativa: alt vacío -->
@@ -41,7 +40,7 @@
                     class="ficha__portada"
                 >
 
-                <!-- Aquí irá el bloque "tuyo" en la parte 2 -->
+                <!-- Bloque "tuyo": añadir, estado y progreso -->
                 <div class="ficha__usuario">
                     <!-- Botón para añadir la serie a la biblioteca -->
                     <button type="button" class="boton boton--principal">Añadir a la lista</button>
@@ -66,5 +65,45 @@
             <!-- Título de la serie: el más importante de la página -->
             <h1 class="ficha__titulo">Solo Leveling</h1>
 
+            <!-- Fila de 4 datos. <dl> es una "lista de definiciones": pares nombre → valor -->
+            <dl class="datos">
+                <div class="dato">
+                    <dt>Capítulos</dt>
+                    <dd>200</dd>
+                </div>
+                <div class="dato">
+                    <dt>Publicación</dt>
+                    <dd>Finalizada</dd>
+                </div>
+                <div class="dato">
+                    <dt>Años</dt>
+                    <dd>2018–2021</dd>
+                </div>
+                <div class="dato">
+                    <dt>Nota</dt>
+                    <dd>★ 4,4</dd>
+                </div>
+            </dl>
+
+            <!-- Géneros como etiquetas -->
+            <ul class="generos" aria-label="Géneros">
+                <li class="genero">Acción</li>
+                <li class="genero">Aventura</li>
+                <li class="genero">Fantasía</li>
+            </ul>
+
+            <!-- Descripción de la serie -->
+            <section class="sinopsis">
+                <h2 class="sinopsis__titulo">Descripción</h2>
+                <p>
+                    Hace diez años se abrieron portales que conectan nuestro mundo con otro lleno de monstruos.
+                    Sung Jin-Woo, el cazador más débil de todos, recibe un poder misterioso que le permite
+                    subir de nivel sin límite.
+                </p>
+            </section>
+
         </article>
+
     </main>
+</body>
+</html>
