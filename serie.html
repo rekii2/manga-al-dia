@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Hace que en el móvil la página se vea a su tamaño real, sin alejarse -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de serie - Manga al Día</title>
+    <!-- Conecta la hoja de estilos. La ruta es relativa a este archivo -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Cabecera: se repetirá igual en las tres páginas -->
+    <header class="cabecera">
+        <!-- Logo + nombre. De momento solo texto; el logo irá aquí más adelante -->
+        <a href="index.html" class="cabecera__logo">Manga al Día</a>
+
+        <!-- Navegación entre páginas -->
+        <nav class="cabecera__nav">
+            <a href="biblioteca.html">Mi biblioteca</a>
+        </nav>
+    </header>
+
+    <main>
+                <!-- article: contenido que tiene sentido por sí solo (la ficha de UNA serie) -->
+        <article class="ficha">
+
+            <!-- Imagen de fondo de la serie (banner). Es decorativa: alt vacío -->
+            <div class="ficha__banner">
+                <img
+                    src="https://placehold.co/800x250?text=Banner+de+la+serie"
+                    alt=""
+                    class="ficha__banner-img"
+                >
+            </div>
+
+            <!-- Portada + bloque del usuario, uno al lado del otro -->
+            <div class="ficha__cabecera">
+                <img
+                    src="https://placehold.co/120x180?text=Portada"
+                    alt="Portada de Solo Leveling"
+                    class="ficha__portada"
+                >
+
+                <!-- Aquí irá el bloque "tuyo" en la parte 2 -->
+                <div class="ficha__usuario">
+
+                </div>
+            </div>
+
+            <!-- Título de la serie: el más importante de la página -->
+            <h1 class="ficha__titulo">Solo Leveling</h1>
+
+        </article>
+    </main>
