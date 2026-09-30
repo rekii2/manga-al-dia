@@ -48,12 +48,6 @@ body {
     text-decoration: underline;
 }
 
-/* =========================================
-   4. UTILIDADES
-   ========================================= */
-
-/* Oculta un elemento a la vista pero lo deja para los lectores de pantalla.
-   Es la forma estándar de hacerlo; "display: none" lo ocultaría también para ellos. */
 .visualmente-oculto {
     position: absolute;
     width: 1px;
@@ -63,30 +57,26 @@ body {
     white-space: nowrap;
 }
 
-/* Margen interior para el contenido de cada página */
 .contenedor {
     padding: var(--espacio);
 }
 
-/* =========================================
-   5. BUSCADOR
-   ========================================= */
+
 .buscador {
-    display: flex;               /* caja de texto y botón en fila */
-    gap: 0.5rem;                 /* separación entre los dos */
+    display: flex;
+    gap: 0.5rem;
 }
 
 .buscador__input {
-    flex: 1;                     /* ocupa todo el ancho que sobre */
+    flex: 1;
     padding: 0.75rem;
-    font-size: 1rem;             /* 16px mínimo: si es menor, el iPhone hace zoom al tocarlo */
+    font-size: 1rem;
     color: var(--color-texto);
     background-color: var(--color-superficie);
     border: 1px solid var(--color-texto-suave);
     border-radius: var(--radio);
 }
 
-/* Cuando la caja está seleccionada, el borde toma tu color de acento */
 .buscador__input:focus {
     outline: none;
     border-color: var(--color-acento);
@@ -96,14 +86,80 @@ body {
     padding: 0.75rem 1rem;
     font-size: 1rem;
     font-weight: bold;
-    color: var(--color-fondo);   /* texto oscuro sobre el botón de color */
+    color: var(--color-fondo);
     background-color: var(--color-acento);
     border: none;
     border-radius: var(--radio);
-    cursor: pointer;             /* manita al pasar el ratón */
+    cursor: pointer;
 }
 
 .buscador__boton:hover,
 .buscador__boton:focus {
-    filter: brightness(1.1);     /* un poco más claro al pasar el ratón o con Tab */
+    filter: brightness(1.1);
+}
+
+/* =========================================
+   6. RESULTADOS DE BÚSQUEDA
+   ========================================= */
+
+/* Separación entre el buscador y los resultados */
+.resultados {
+    margin-top: 1.5rem;
+}
+
+/* El título "Resultados": más pequeño y en gris, para que no compita con las series */
+.resultados__titulo {
+    margin: 0 0 0.75rem;
+    font-size: 1.125rem;
+    color: var(--color-texto-suave);
+}
+
+/* La lista: sin puntos, sin sangría y con hueco entre resultados */
+.resultados__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;   /* uno debajo de otro */
+    gap: 0.5rem;
+}
+
+/* Cada resultado es una tarjeta: foto a la izquierda, texto a la derecha */
+.resultado {
+    display: flex;
+    align-items: center;      /* texto centrado en vertical respecto a la foto */
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background-color: var(--color-superficie);
+    border-radius: var(--radio);
+    color: var(--color-texto);
+    text-decoration: none;    /* quita el subrayado del enlace */
+}
+
+/* Al pasar el ratón o llegar con Tab, se marca con tu color de acento */
+.resultado:hover,
+.resultado:focus {
+    outline: 2px solid var(--color-acento);
+}
+
+/* La portada: tamaño fijo y sin deformarse */
+.resultado__portada {
+    width: 48px;
+    height: 72px;
+    object-fit: cover;        /* recorta en vez de estirar si la imagen tiene otra forma */
+    border-radius: 4px;
+    flex-shrink: 0;           /* que no se encoja si el nombre es muy largo */
+}
+
+/* Nombre de la serie */
+.resultado__nombre {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Tipo y año, más pequeño y en gris */
+.resultado__meta {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-texto-suave);
 }
