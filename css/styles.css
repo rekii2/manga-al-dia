@@ -210,3 +210,66 @@ body {
     font-size: 1.5rem;
     line-height: 1.2;
 }
+
+/* =========================================
+   8. BOTONES (reutilizables en toda la web)
+   ========================================= */
+.boton {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: var(--radio);
+    cursor: pointer;
+}
+
+.boton:hover,
+.boton:focus {
+    filter: brightness(1.1);
+}
+
+/* Variante principal: fondo de color de acento */
+.boton--principal {
+    width: 100%;
+    color: var(--color-fondo);
+    background-color: var(--color-acento);
+}
+
+/* Variante +1: cuadrado y fácil de pulsar con el dedo */
+.boton--mas {
+    min-width: 44px;              /* 44px: tamaño mínimo recomendado para tocar con el dedo */
+    min-height: 44px;
+    color: var(--color-acento);
+    background-color: var(--color-superficie);
+    border: 2px solid var(--color-acento);
+}
+
+/* =========================================
+   9. FICHA: BLOQUE DEL USUARIO
+   ========================================= */
+.ficha__usuario {
+    display: flex;
+    flex-direction: column;       /* en columna: añadir, estado, progreso */
+    gap: 0.5rem;
+}
+
+.ficha__estado {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    color: var(--color-texto);
+    background-color: var(--color-superficie);
+    border: 1px solid var(--color-texto-suave);
+    border-radius: var(--radio);
+}
+
+.progreso {
+    display: flex;
+    justify-content: space-between;   /* texto a la izquierda, +1 a la derecha */
+    align-items: center;
+}
+
+.progreso__texto {
+    margin: 0;
+    font-weight: bold;
+}

@@ -20,7 +20,7 @@
         </nav>
     </header>
 
-    <main>
+    <main class="contenedor">
                 <!-- article: contenido que tiene sentido por sí solo (la ficha de UNA serie) -->
         <article class="ficha">
 
@@ -43,7 +43,23 @@
 
                 <!-- Aquí irá el bloque "tuyo" en la parte 2 -->
                 <div class="ficha__usuario">
+                    <!-- Botón para añadir la serie a la biblioteca -->
+                    <button type="button" class="boton boton--principal">Añadir a la lista</button>
 
+                    <!-- Mi estado de lectura: un desplegable -->
+                    <label for="estado" class="visualmente-oculto">Mi estado</label>
+                    <select id="estado" class="ficha__estado">
+                        <option value="leyendo">Leyendo</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="terminada">Terminada</option>
+                        <option value="abandonada">Abandonada</option>
+                    </select>
+
+                    <!-- Progreso: capítulo actual / total, con el +1 al lado -->
+                    <div class="progreso">
+                        <p class="progreso__texto">Cap. 7 / 24</p>
+                        <button type="button" class="boton boton--mas" aria-label="Sumar un capítulo">+1</button>
+                    </div>
                 </div>
             </div>
 
