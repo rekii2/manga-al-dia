@@ -335,3 +335,111 @@ body {
     margin: 0;
     color: var(--color-texto-suave);
 }
+
+/* =========================================
+   11. BIBLIOTECA
+   ========================================= */
+
+.pagina__titulo {
+    margin: 0 0 var(--espacio);
+    font-size: 1.5rem;
+}
+
+/* Fila de pestañas que se desliza de lado si no cabe */
+.pestanas {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;           /* scroll horizontal si no caben */
+    padding-bottom: 0.25rem;
+    margin-bottom: var(--espacio);
+}
+
+.pestana {
+    flex-shrink: 0;             /* no se aplastan: se desliza la fila */
+    padding: 0.5rem 0.9rem;
+    font-size: 0.95rem;
+    color: var(--color-texto);
+    background-color: transparent;
+    border: 1px solid var(--color-texto-suave);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+/* El número de cada pestaña, un poco más apagado */
+.pestana span {
+    color: var(--color-texto-suave);
+}
+
+/* Pestaña activa: se selecciona por su atributo aria-pressed="true" */
+.pestana[aria-pressed="true"] {
+    color: var(--color-fondo);
+    background-color: var(--color-acento);
+    border-color: var(--color-acento);
+    font-weight: bold;          /* no solo color: también negrita (accesibilidad) */
+}
+
+.pestana[aria-pressed="true"] span {
+    color: var(--color-fondo);
+}
+
+/* Lista de tarjetas */
+.biblioteca {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tarjeta {
+    padding: 0.75rem;
+    background-color: var(--color-superficie);
+    border-radius: var(--radio);
+}
+
+/* Foto + nombre en fila (igual que los resultados de búsqueda) */
+.tarjeta__enlace {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-texto);
+    text-decoration: none;
+}
+
+.tarjeta__enlace:hover .tarjeta__nombre,
+.tarjeta__enlace:focus .tarjeta__nombre {
+    color: var(--color-acento);
+}
+
+.tarjeta__portada {
+    width: 48px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.tarjeta__nombre {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.tarjeta__meta {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-texto-suave);
+}
+
+/* Progreso debajo de la foto, con un poco de separación */
+.tarjeta__progreso {
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+/* Barra de progreso: ocupa el hueco entre el texto y el +1 */
+.barra {
+    flex: 1;
+    height: 8px;
+    accent-color: var(--color-acento);   /* colorea la barra con tu acento */
+}

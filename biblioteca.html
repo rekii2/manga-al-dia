@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Hace que en el móvil la página se vea a su tamaño real, sin alejarse -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Biblioteca - Manga al Día</title>
+    <!-- Conecta la hoja de estilos. La ruta es relativa a este archivo -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Cabecera: se repetirá igual en las tres páginas -->
+    <header class="cabecera">
+        <!-- Logo + nombre. De momento solo texto; el logo irá aquí más adelante -->
+        <a href="index.html" class="cabecera__logo">Manga al Día</a>
+
+        <!-- Navegación entre páginas -->
+        <nav class="cabecera__nav">
+            <a href="index.html">Inicio</a>
+        </nav>
+    </header>
+
+    <main class="contenedor">
+        <!-- Título principal de la página -->
+        <h1 class="pagina__titulo">Mi biblioteca</h1>
+
+        <!-- Pestañas de filtro por estado. aria-pressed="true" marca la activa -->
+        <div class="pestanas">
+            <button type="button" class="pestana" aria-pressed="true">Leyendo <span>2</span></button>
+            <button type="button" class="pestana" aria-pressed="false">Pendiente <span>3</span></button>
+            <button type="button" class="pestana" aria-pressed="false">Terminada <span>5</span></button>
+            <button type="button" class="pestana" aria-pressed="false">Abandonada <span>1</span></button>
+        </div>
+
+        <!-- Lista de series de la pestaña activa -->
+        <ul class="biblioteca">
+
+            <!-- Serie con total desconocido: sin barra -->
+            <li class="tarjeta">
+                <a href="serie.html?id=151807" class="tarjeta__enlace">
+                    <img src="https://placehold.co/60x90?text=Portada" alt="" class="tarjeta__portada">
+                    <div>
+                        <h2 class="tarjeta__nombre">Solo Leveling</h2>
+                        <p class="tarjeta__meta">Manhwa</p>
+                    </div>
+                </a>
+                <div class="progreso tarjeta__progreso">
+                    <p class="progreso__texto">Cap. 87 / ?</p>
+                    <button type="button" class="boton boton--mas" aria-label="Sumar un capítulo a Solo Leveling">+1</button>
+                </div>
+            </li>
+
+            <!-- Serie con total conocido: con barra de progreso -->
+            <li class="tarjeta">
+                <a href="serie.html?id=86635" class="tarjeta__enlace">
+                    <img src="https://placehold.co/60x90?text=Portada" alt="" class="tarjeta__portada">
+                    <div>
+                        <h2 class="tarjeta__nombre">Chainsaw Man</h2>
+                        <p class="tarjeta__meta">Manga</p>
+                    </div>
+                </a>
+                <div class="progreso tarjeta__progreso">
+                    <p class="progreso__texto">Cap. 7 / 24</p>
+                    <progress class="barra" value="7" max="24">7 de 24</progress>
+                    <button type="button" class="boton boton--mas" aria-label="Sumar un capítulo a Chainsaw Man">+1</button>
+                </div>
+            </li>
+
+        </ul>
+    </main>
+</body>
+</html>
