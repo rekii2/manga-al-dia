@@ -231,6 +231,19 @@ body {
     line-height: 1.2;
 }
 
+/* Mensaje de "Cargando…" o de error en la ficha */
+.ficha__mensaje {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--color-texto-suave);
+}
+
+/* Si la serie no tiene banner, usamos su portada difuminada */
+.ficha__banner-img--difuminada {
+    filter: blur(12px);
+    transform: scale(1.1);   /* la agranda un poco para que el difuminado no deje bordes */
+}
+
 /* =========================================
    8. BOTONES (reutilizables en toda la web)
    ========================================= */
@@ -361,6 +374,7 @@ body {
 .sinopsis p {
     margin: 0;
     color: var(--color-texto-suave);
+    white-space: pre-line;   /* respeta los saltos de línea de la descripción */
 }
 
 /* =========================================

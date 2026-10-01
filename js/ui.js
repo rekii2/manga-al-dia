@@ -351,3 +351,135 @@ if (formBuscador) {
         hacerBusqueda(texto);
     });
 }
+
+// =========================================
+// FICHA DE SERIE (serie.html)
+// =========================================
+
+const fichaSerie = document.querySelector("#ficha");
+const mensajeFicha = document.querySelector("#mensaje-ficha");
+
+// AniList da el estado de publicación en inglés y mayúsculas; lo traducimos
+const textosPublicacion = {
+    RELEASING: "Publicándose",
+    FINISHED: "Finalizada",
+    HIATUS: "En pausa",
+    CANCELLED: "Cancelada",
+    NOT_YET_RELEASED: "Próximamente"
+};
+
+// Devuelve los años: "2018–2021", "2018–" (si sigue publicándose) o "2018"
+function textoAnios(serie) {
+    const inicio = serie.startDate.year;
+    const fin = serie.endDate.year;
+
+    if (!inicio) {
+        return "?";
+    }
+    if (fin && fin !== inicio) {
+        return inicio + "–" + fin;
+    }
+    if (serie.status === "RELEASING") {
+        return inicio + "–";
+    }
+    return String(inicio);
+}
+
+// AniList da la nota de 0 a 100 (ej. 88). La mostramos sobre 10: "★ 8,8"
+function textoNota(serie) {
+    if (!serie.averageScore) {
+        return "—";
+    }
+    // toFixed(1): un decimal. replace: cambia el punto por coma, como en español
+    const nota = (serie.averageScore / 10).toFixed(1).replace(".", ",");
+    return "★ " + nota;
+}
+
+// La descripción de AniList trae etiquetas como <br> o <i>. Las quitamos:
+// los <br> se convierten en saltos de línea y el resto de etiquetas se borran.
+function limpiarDescripcion(texto) {
+    if (!texto) {
+        return "Sin descripción.";
+    }
+    return texto
+        .replace(/<br\s*\/?>\n?/gi, "\n") // <br> (y el salto que suele llevar detrás) → un salto de línea
+        .replace(/<[^>]*>/g, "")         // cualquier otra etiqueta <...> → nada
+        .trim();
+}
+
+// Rellena la ficha con los datos de la serie
+function pintarFicha(serie) {
+    const titulo = tituloDeSerie(serie);
+
+    // Título de la pestaña del navegador
+    document.title = titulo + " · Manga al Día";
+
+    // Banner: si la serie no tiene, usamos la portada difuminada
+    const banner = document.querySelector("#ficha-banner");
+    if (serie.bannerImage) {
+        banner.src = serie.bannerImage;
+    } else {
+        banner.src = serie.coverImage.large;
+        banner.classList.add("ficha__banner-img--difuminada");
+    }
+
+    const portada = document.querySelector("#ficha-portada");
+    portada.src = serie.coverImage.large;
+    portada.alt = "Portada de " + titulo;
+
+    document.querySelector("#ficha-titulo").textContent = titulo;
+
+    // Los 4 datos. Si AniList no sabe algo (null), ponemos "?"
+    document.querySelector("#dato-capitulos").textContent = serie.chapters || "?";
+    document.querySelector("#dato-publicacion").textContent = textosPublicacion[serie.status] || "?";
+    document.querySelector("#dato-anios").textContent = textoAnios(serie);
+    document.querySelector("#dato-nota").textContent = textoNota(serie);
+
+    // Géneros: una píldora por cada uno
+    const listaGeneros = document.querySelector("#ficha-generos");
+    listaGeneros.replaceChildren();
+    for (const genero of serie.genres) {
+        const item = document.createElement("li");
+        item.className = "genero";
+        item.textContent = genero;
+        listaGeneros.append(item);
+    }
+
+    // Descripción: limpia y con textContent (nunca innerHTML con datos externos)
+    document.querySelector("#ficha-descripcion").textContent = limpiarDescripcion(serie.description);
+}
+
+// Lee el id de la dirección (serie.html?id=151807), pide la serie y la pinta
+async function cargarFicha() {
+    // URLSearchParams lee lo que va detrás del "?" en la dirección
+    const parametros = new URLSearchParams(window.location.search);
+    const id = Number(parametros.get("id"));
+
+    // Si no hay id o no es un número entero positivo, no seguimos
+    if (!Number.isInteger(id) || id <= 0) {
+        mensajeFicha.textContent = "No se ha indicado ninguna serie. Vuelve al inicio y busca una.";
+        return;
+    }
+
+    try {
+        const serie = await obtenerSerie(id);
+        pintarFicha(serie);
+
+        // Todo listo: ocultamos el mensaje y enseñamos la ficha
+        mensajeFicha.hidden = true;
+        fichaSerie.hidden = false;
+    } catch (error) {
+        console.error(error);
+
+        if (!navigator.onLine) {
+            mensajeFicha.textContent = "Sin conexión. Revisa tu internet y recarga la página.";
+        } else {
+            mensajeFicha.textContent = "No se ha podido cargar esta serie. Puede que no exista o que AniList no responda.";
+        }
+    }
+}
+
+// Solo cargamos la ficha si estamos en serie.html
+if (fichaSerie) {
+    cargarFicha();
+}

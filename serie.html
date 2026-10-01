@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <!-- Hace que en el móvil la página se vea a su tamaño real, sin alejarse -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- JavaScript lo cambia por el nombre de la serie al cargarla -->
     <title>Ficha de serie · Manga al Día</title>
     <!-- Conecta la hoja de estilos. La ruta es relativa a este archivo -->
     <link rel="stylesheet" href="css/styles.css">
@@ -23,27 +24,24 @@
 
     <main class="contenedor">
 
-        <!-- article: contenido que tiene sentido por sí solo (la ficha de UNA serie) -->
-        <article class="ficha">
+        <!-- Mensaje mientras carga la serie, o si hay un error -->
+        <p class="ficha__mensaje" id="mensaje-ficha" aria-live="polite">Cargando…</p>
+
+        <!-- La ficha empieza oculta (hidden). JavaScript la rellena con los datos de AniList y la muestra.
+             Los id sirven para que JavaScript encuentre cada hueco que tiene que rellenar -->
+        <article class="ficha" id="ficha" hidden>
 
             <!-- Imagen de fondo de la serie (banner). Es decorativa: alt vacío -->
             <div class="ficha__banner">
-                <img
-                    src="https://placehold.co/800x250?text=Banner+de+la+serie"
-                    alt=""
-                    class="ficha__banner-img"
-                >
+                <img alt="" class="ficha__banner-img" id="ficha-banner">
             </div>
 
             <!-- Portada + bloque del usuario, uno al lado del otro -->
             <div class="ficha__cabecera">
-                <img
-                    src="https://placehold.co/120x180?text=Portada"
-                    alt="Portada de Solo Leveling"
-                    class="ficha__portada"
-                >
+                <img alt="" class="ficha__portada" id="ficha-portada">
 
-                <!-- Bloque "tuyo": añadir, estado y progreso -->
+                <!-- Bloque "tuyo": añadir, estado y progreso.
+                     De momento sigue con datos inventados: lo conectaremos en la fase 7 (localStorage) -->
                 <div class="ficha__usuario">
                     <!-- Botón para añadir la serie a la biblioteca -->
                     <button type="button" class="boton boton--principal">Añadir a la lista</button>
@@ -66,47 +64,44 @@
             </div>
 
             <!-- Título de la serie: el más importante de la página -->
-            <h1 class="ficha__titulo">Solo Leveling</h1>
+            <h1 class="ficha__titulo" id="ficha-titulo"></h1>
 
             <!-- Fila de 4 datos. <dl> es una "lista de definiciones": pares nombre → valor -->
             <dl class="datos">
                 <div class="dato">
                     <dt>Capítulos</dt>
-                    <dd>200</dd>
+                    <dd id="dato-capitulos"></dd>
                 </div>
                 <div class="dato">
                     <dt>Publicación</dt>
-                    <dd>Finalizada</dd>
+                    <dd id="dato-publicacion"></dd>
                 </div>
                 <div class="dato">
                     <dt>Años</dt>
-                    <dd>2018–2021</dd>
+                    <dd id="dato-anios"></dd>
                 </div>
                 <div class="dato">
                     <dt>Nota</dt>
-                    <dd>★ 4,4</dd>
+                    <dd id="dato-nota"></dd>
                 </div>
             </dl>
 
-            <!-- Géneros como etiquetas -->
-            <ul class="generos" aria-label="Géneros">
-                <li class="genero">Acción</li>
-                <li class="genero">Aventura</li>
-                <li class="genero">Fantasía</li>
-            </ul>
+            <!-- Géneros como etiquetas (las crea JavaScript) -->
+            <ul class="generos" id="ficha-generos" aria-label="Géneros"></ul>
 
             <!-- Descripción de la serie -->
             <section class="sinopsis">
                 <h2 class="sinopsis__titulo">Descripción</h2>
-                <p>
-                    Hace diez años se abrieron portales que conectan nuestro mundo con otro lleno de monstruos.
-                    Sung Jin-Woo, el cazador más débil de todos, recibe un poder misterioso que le permite
-                    subir de nivel sin límite.
-                </p>
+                <p id="ficha-descripcion"></p>
             </section>
 
         </article>
 
     </main>
+
+    <!-- Habla con la API de AniList -->
+    <script src="js/api.js"></script>
+    <!-- Pinta la pantalla. Va después porque usa funciones de api.js -->
+    <script src="js/ui.js"></script>
 </body>
 </html>
