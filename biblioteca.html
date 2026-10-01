@@ -27,15 +27,17 @@
 
         <!-- Pestañas de filtro por estado. aria-pressed="true" marca la activa -->
         <div class="pestanas">
-            <button type="button" class="pestana" aria-pressed="true">Leyendo <span>2</span></button>
-            <button type="button" class="pestana" aria-pressed="false">Pendiente <span>3</span></button>
-            <button type="button" class="pestana" aria-pressed="false">Terminada <span>5</span></button>
-            <button type="button" class="pestana" aria-pressed="false">Abandonada <span>1</span></button>
+            <!-- data-estado: qué estado filtra cada pestaña. Los números los calcula JavaScript -->
+            <button type="button" class="pestana" data-estado="leyendo" aria-pressed="true">Leyendo <span class="pestana__numero">0</span></button>
+            <button type="button" class="pestana" data-estado="pendiente" aria-pressed="false">Pendiente <span class="pestana__numero">0</span></button>
+            <button type="button" class="pestana" data-estado="terminada" aria-pressed="false">Terminada <span class="pestana__numero">0</span></button>
+            <button type="button" class="pestana" data-estado="abandonada" aria-pressed="false">Abandonada <span class="pestana__numero">0</span></button>
         </div>
 
         <!-- Lista de series de la pestaña activa -->
         <ul class="biblioteca">
-
+            <!-- Mensaje cuando la pestaña no tiene series. Empieza oculto (hidden) -->
+            <p class="biblioteca__vacia" hidden></p>
         </ul>
     </main>
 

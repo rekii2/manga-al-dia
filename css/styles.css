@@ -459,6 +459,13 @@ body {
     accent-color: var(--color-acento);   /* colorea la barra con tu acento */
 }
 
+/* Mensaje cuando una pestaña no tiene series */
+.biblioteca__vacia {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--color-texto-suave);
+}
+
 
 /* =========================================
    12. VERSIÓN ORDENADOR

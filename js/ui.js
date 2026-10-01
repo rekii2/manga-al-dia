@@ -161,5 +161,65 @@ function pintarBiblioteca(series) {
     }
 }
 
-// Arrancamos: pintamos las series de ejemplo
-pintarBiblioteca(seriesDeEjemplo);
+// =========================================
+// FILTRO POR ESTADO (pestañas)
+// =========================================
+
+// Todas las pestañas y el mensaje de "lista vacía"
+const pestanas = document.querySelectorAll(".pestana");
+const mensajeVacio = document.querySelector(".biblioteca__vacia");
+
+// Nombres para mostrar en los mensajes (en los datos van en minúscula)
+const nombresEstado = {
+    leyendo: "Leyendo",
+    pendiente: "Pendiente",
+    terminada: "Terminada",
+    abandonada: "Abandonada"
+};
+
+// Devuelve solo las series que tienen el estado indicado
+function seriesConEstado(estado) {
+    return seriesDeEjemplo.filter(function (serie) {
+        return serie.estado === estado;
+    });
+}
+
+// Pone en cada pestaña cuántas series tiene ese estado
+function actualizarContadores() {
+    for (const pestana of pestanas) {
+        const cantidad = seriesConEstado(pestana.dataset.estado).length;
+        pestana.querySelector(".pestana__numero").textContent = cantidad;
+    }
+}
+
+// Muestra las series de un estado y marca su pestaña como activa
+function mostrarEstado(estado) {
+    // 1. Marcamos la pestaña pulsada y desmarcamos las demás
+    for (const pestana of pestanas) {
+        const esLaActiva = pestana.dataset.estado === estado;
+        pestana.setAttribute("aria-pressed", esLaActiva ? "true" : "false");
+    }
+
+    // 2. Pintamos solo las series de ese estado
+    const seriesFiltradas = seriesConEstado(estado);
+    pintarBiblioteca(seriesFiltradas);
+
+    // 3. Si no hay ninguna, enseñamos el mensaje; si hay, lo ocultamos
+    if (seriesFiltradas.length === 0) {
+        mensajeVacio.textContent = "No tienes series en «" + nombresEstado[estado] + "».";
+        mensajeVacio.hidden = false;
+    } else {
+        mensajeVacio.hidden = true;
+    }
+}
+
+// Cada pestaña, al pulsarla, muestra su estado
+for (const pestana of pestanas) {
+    pestana.addEventListener("click", function () {
+        mostrarEstado(pestana.dataset.estado);
+    });
+}
+
+// Arrancamos: calculamos los números y mostramos "Leyendo"
+actualizarContadores();
+mostrarEstado("leyendo");
