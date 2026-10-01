@@ -457,14 +457,41 @@ body {
    12. VERSIÓN ORDENADOR
    ========================================= */
 
-/* Todo lo de dentro SOLO se aplica si la ventana mide 768px o más.
-   En el móvil se ignora y se queda tu diseño de siempre. */
 @media (min-width: 768px) {
 
     /* El contenido no crece más de 900px y queda centrado */
     .contenedor {
         max-width: var(--ancho-maximo);
         margin: 0 auto;
+    }
+
+    /* --- Ficha de serie --- */
+
+    /* Banner más alto */
+    .ficha__banner {
+        height: 250px;
+    }
+
+    /* La portada sube más para seguir "pisando" el banner */
+    .ficha__cabecera {
+        margin-top: -100px;
+    }
+
+    /* Portada más grande (misma proporción 2:3 que en el móvil) */
+    .ficha__portada {
+        width: 160px;
+        height: 240px;
+    }
+
+    /* El bloque del usuario no pasa de 280px: el botón deja de ser gigante */
+    .ficha__usuario {
+        max-width: 280px;
+        padding-top: 110px;   /* baja los botones justo por debajo del banner */
+    }
+
+    /* Título un poco más grande */
+    .ficha__titulo {
+        font-size: 2rem;
     }
 
 }
