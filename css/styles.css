@@ -444,3 +444,20 @@ body {
     height: 8px;
     accent-color: var(--color-acento);   /* colorea la barra con tu acento */
 }
+
+
+/* =========================================
+   12. VERSIÓN ORDENADOR
+   ========================================= */
+
+/* Todo lo de dentro SOLO se aplica si la ventana mide 768px o más.
+   En el móvil se ignora y se queda tu diseño de siempre. */
+@media (min-width: 768px) {
+
+    /* El contenido no crece más de 900px y queda centrado */
+    .contenedor {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+}
