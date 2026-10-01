@@ -1,47 +1,8 @@
 // =========================================
-// DATOS DE EJEMPLO (inventados)
-// Más adelante vendrán de AniList y de lo que guarde el usuario.
+// INTERFAZ (ui.js)
+// Este archivo pinta la pantalla y reacciona a los clics.
+// Los datos de AniList los pide a api.js y la biblioteca la guarda/lee con storage.js.
 // =========================================
-
-// Array de objetos: cada objeto es una serie de la biblioteca
-const seriesDeEjemplo = [
-    {
-        id: 1,
-        titulo: "Solo Leveling",
-        tipo: "Manhwa",
-        portada: "https://placehold.co/60x90?text=Portada",
-        capitulo: 87,
-        total: null,          // null = no se sabe cuántos capítulos tiene
-        estado: "leyendo"
-    },
-    {
-        id: 2,
-        titulo: "Chainsaw Man",
-        tipo: "Manga",
-        portada: "https://placehold.co/60x90?text=Portada",
-        capitulo: 7,
-        total: 24,
-        estado: "leyendo"
-    },
-    {
-        id: 3,
-        titulo: "Blue Period",
-        tipo: "Manga",
-        portada: "https://placehold.co/60x90?text=Portada",
-        capitulo: 0,
-        total: 60,
-        estado: "pendiente"
-    },
-    {
-        id: 4,
-        titulo: "Tales of Demons and Gods",
-        tipo: "Manhua",
-        portada: "https://placehold.co/60x90?text=Portada",
-        capitulo: 120,
-        total: null,
-        estado: "abandonada"
-    }
-];
 
 // =========================================
 // FUNCIONES DE AYUDA
@@ -127,8 +88,9 @@ function crearTarjeta(serie) {
 
     // Cuando pulsen el +1...
     botonMas.addEventListener("click", function () {
-        // 1. Sumamos un capítulo EN LOS DATOS
+        // 1. Sumamos un capítulo en los datos y lo GUARDAMOS (storage.js)
         serie.capitulo = serie.capitulo + 1;
+        actualizarCapitulo(serie.id, serie.capitulo);
 
         // 2. Actualizamos lo que se ve: el texto...
         texto.textContent = textoProgreso(serie);
@@ -177,9 +139,9 @@ const nombresEstado = {
     abandonada: "Abandonada"
 };
 
-// Devuelve solo las series que tienen el estado indicado
+// Devuelve solo las series guardadas que tienen el estado indicado
 function seriesConEstado(estado) {
-    return seriesDeEjemplo.filter(function (serie) {
+    return obtenerBiblioteca().filter(function (serie) {
         return serie.estado === estado;
     });
 }
@@ -205,7 +167,12 @@ function mostrarEstado(estado) {
     pintarBiblioteca(seriesFiltradas);
 
     // 3. Si no hay ninguna, enseñamos el mensaje; si hay, lo ocultamos
-    if (seriesFiltradas.length === 0) {
+    if (obtenerBiblioteca().length === 0) {
+        // La biblioteca entera está vacía (por ejemplo, la primera vez)
+        mensajeVacio.textContent = "Aún no tienes series. ¡Busca una en el inicio!";
+        mensajeVacio.hidden = false;
+    } else if (seriesFiltradas.length === 0) {
+        // Hay series, pero ninguna con este estado
         mensajeVacio.textContent = "No tienes series en «" + nombresEstado[estado] + "».";
         mensajeVacio.hidden = false;
     } else {
@@ -449,6 +416,79 @@ function pintarFicha(serie) {
     document.querySelector("#ficha-descripcion").textContent = limpiarDescripcion(serie.description);
 }
 
+// =========================================
+// FICHA: BLOQUE DEL USUARIO (añadir, estado, progreso)
+// =========================================
+
+const botonAnadir = document.querySelector("#boton-anadir");
+const selectEstado = document.querySelector("#estado");
+const progresoFicha = document.querySelector("#progreso-ficha");
+const textoProgresoFicha = document.querySelector("#progreso-ficha-texto");
+const botonMasFicha = document.querySelector("#boton-mas-ficha");
+const botonQuitar = document.querySelector("#boton-quitar");
+
+// La serie de AniList que se está viendo. Se rellena al cargar la ficha.
+let serieActual = null;
+
+// Enseña unas partes u otras según si la serie está en tu biblioteca o no
+function pintarBloqueUsuario() {
+    const guardada = obtenerSerieGuardada(serieActual.id);
+
+    // No está en tu biblioteca: solo el botón "Añadir a la lista"
+    if (guardada === null) {
+        botonAnadir.hidden = false;
+        selectEstado.hidden = true;
+        progresoFicha.hidden = true;
+        botonQuitar.hidden = true;
+        return;
+    }
+
+    // Sí está: ocultamos "Añadir" y enseñamos estado, progreso y "Quitar"
+    botonAnadir.hidden = true;
+    selectEstado.hidden = false;
+    progresoFicha.hidden = false;
+    botonQuitar.hidden = false;
+
+    // Rellenamos con lo guardado
+    selectEstado.value = guardada.estado;   // el desplegable muestra tu estado
+    textoProgresoFicha.textContent = textoProgreso(guardada);
+    botonMasFicha.disabled = haLlegadoAlFinal(guardada);
+}
+
+// Solo en serie.html: conectamos los botones del bloque del usuario
+if (fichaSerie) {
+    // Añadir a la lista: guardamos los datos básicos de la serie, en "Pendiente"
+    botonAnadir.addEventListener("click", function () {
+        anadirSerie({
+            id: serieActual.id,
+            titulo: tituloDeSerie(serieActual),
+            tipo: tipoDeSerie(serieActual.countryOfOrigin),
+            portada: serieActual.coverImage.medium,
+            total: serieActual.chapters      // null si AniList no lo sabe
+        }, "pendiente");
+
+        pintarBloqueUsuario();
+    });
+
+    // Cambiar el estado en el desplegable ("change" salta al elegir otra opción)
+    selectEstado.addEventListener("change", function () {
+        cambiarEstado(serieActual.id, selectEstado.value);
+    });
+
+    // +1: leemos el capítulo guardado, sumamos uno, guardamos y repintamos
+    botonMasFicha.addEventListener("click", function () {
+        const guardada = obtenerSerieGuardada(serieActual.id);
+        actualizarCapitulo(serieActual.id, guardada.capitulo + 1);
+        pintarBloqueUsuario();
+    });
+
+    // Quitar de la lista
+    botonQuitar.addEventListener("click", function () {
+        eliminarSerie(serieActual.id);
+        pintarBloqueUsuario();
+    });
+}
+
 // Lee el id de la dirección (serie.html?id=151807), pide la serie y la pinta
 async function cargarFicha() {
     // URLSearchParams lee lo que va detrás del "?" en la dirección
@@ -464,6 +504,10 @@ async function cargarFicha() {
     try {
         const serie = await obtenerSerie(id);
         pintarFicha(serie);
+
+        // Guardamos la serie que se está viendo y pintamos tu bloque (añadir/estado/progreso)
+        serieActual = serie;
+        pintarBloqueUsuario();
 
         // Todo listo: ocultamos el mensaje y enseñamos la ficha
         mensajeFicha.hidden = true;

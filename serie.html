@@ -41,14 +41,14 @@
                 <img alt="" class="ficha__portada" id="ficha-portada">
 
                 <!-- Bloque "tuyo": añadir, estado y progreso.
-                     De momento sigue con datos inventados: lo conectaremos en la fase 7 (localStorage) -->
+                     JavaScript enseña unas partes u otras según si la serie está en tu biblioteca -->
                 <div class="ficha__usuario">
-                    <!-- Botón para añadir la serie a la biblioteca -->
-                    <button type="button" class="boton boton--principal">Añadir a la lista</button>
+                    <!-- Se ve solo si la serie NO está en tu biblioteca -->
+                    <button type="button" class="boton boton--principal" id="boton-anadir">Añadir a la lista</button>
 
-                    <!-- Mi estado de lectura: un desplegable -->
+                    <!-- A partir de aquí, solo se ve si la serie SÍ está en tu biblioteca (empiezan hidden) -->
                     <label for="estado" class="visualmente-oculto">Mi estado</label>
-                    <select id="estado" class="ficha__estado">
+                    <select id="estado" class="ficha__estado" hidden>
                         <option value="leyendo">Leyendo</option>
                         <option value="pendiente">Pendiente</option>
                         <option value="terminada">Terminada</option>
@@ -56,10 +56,13 @@
                     </select>
 
                     <!-- Progreso: capítulo actual / total, con el +1 al lado -->
-                    <div class="progreso">
-                        <p class="progreso__texto">Cap. 7 / 24</p>
-                        <button type="button" class="boton boton--mas" aria-label="Sumar un capítulo">+1</button>
+                    <div class="progreso" id="progreso-ficha" hidden>
+                        <p class="progreso__texto" id="progreso-ficha-texto"></p>
+                        <button type="button" class="boton boton--mas" id="boton-mas-ficha" aria-label="Sumar un capítulo">+1</button>
                     </div>
+
+                    <button type="button" class="boton boton--secundario" id="boton-quitar" hidden>Quitar de la lista</button>
+                </div>
                 </div>
             </div>
 

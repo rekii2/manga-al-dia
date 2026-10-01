@@ -1,3 +1,8 @@
+/* =========================================
+   1. VARIABLES (colores, espacios, medidas)
+   ========================================= */
+
+/* Valores que se repiten en toda la web. Si cambias uno aquí, cambia en todas partes */
 :root {
     --color-fondo: #14161c;
     --color-superficie: #1e222b;
@@ -11,8 +16,18 @@
 }
 
 
+/* =========================================
+   2. RESET Y BASE
+   ========================================= */
+
+/* El ancho incluye el padding y el borde: así las medidas son más fáciles de calcular */
 * {
     box-sizing: border-box;
+}
+
+/* hidden siempre oculta, aunque la clase del elemento tenga display: flex u otro */
+[hidden] {
+    display: none !important;
 }
 
 body {
@@ -24,6 +39,11 @@ body {
 }
 
 
+/* =========================================
+   3. CABECERA
+   ========================================= */
+
+/* La cabecera de fuera solo pinta el fondo, a todo el ancho */
 .cabecera {
     background-color: var(--color-superficie);
 }
@@ -55,6 +75,11 @@ body {
     text-decoration: underline;
 }
 
+/* =========================================
+   4. UTILIDADES (clases que se usan en varias páginas)
+   ========================================= */
+
+/* Oculta un elemento a la vista, pero los lectores de pantalla sí lo leen */
 .visualmente-oculto {
     position: absolute;
     width: 1px;
@@ -64,11 +89,17 @@ body {
     white-space: nowrap;
 }
 
+/* Caja que envuelve el contenido principal de cada página */
 .contenedor {
     padding: var(--espacio);
 }
 
 
+/* =========================================
+   5. BUSCADOR
+   ========================================= */
+
+/* Formulario: input y botón en fila */
 .buscador {
     display: flex;
     gap: 0.5rem;
@@ -282,6 +313,15 @@ body {
     color: var(--color-acento);
     background-color: var(--color-superficie);
     border: 2px solid var(--color-acento);
+}
+
+/* Variante secundaria: discreta, para acciones menos importantes (ej. quitar de la lista) */
+.boton--secundario {
+    width: 100%;
+    font-weight: normal;
+    color: var(--color-texto-suave);
+    background-color: transparent;
+    border: 1px solid var(--color-texto-suave);
 }
 
 /* =========================================

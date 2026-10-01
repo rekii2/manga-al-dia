@@ -81,8 +81,10 @@ const CONSULTA_SERIE = `
             }
             coverImage {
                 large
+                medium
             }
             bannerImage
+            countryOfOrigin
             chapters
             status
             startDate {
