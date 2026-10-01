@@ -105,6 +105,12 @@ body {
     filter: brightness(1.1);
 }
 
+/* Mientras se busca, el botón queda desactivado */
+.buscador__boton:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
 /* =========================================
    6. RESULTADOS DE BÚSQUEDA
    ========================================= */
@@ -168,6 +174,13 @@ body {
 .resultado__meta {
     margin: 0;
     font-size: 0.875rem;
+    color: var(--color-texto-suave);
+}
+
+/* Mensajes de la búsqueda: "Cargando…", sin resultados, errores */
+.resultados__mensaje {
+    margin: 0;
+    padding: 1rem 0;
     color: var(--color-texto-suave);
 }
 

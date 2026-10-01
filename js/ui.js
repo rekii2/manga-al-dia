@@ -213,13 +213,141 @@ function mostrarEstado(estado) {
     }
 }
 
-// Cada pestaña, al pulsarla, muestra su estado
-for (const pestana of pestanas) {
-    pestana.addEventListener("click", function () {
-        mostrarEstado(pestana.dataset.estado);
-    });
+// Solo arrancamos la biblioteca si estamos en biblioteca.html
+// (en otras páginas no existe la lista y daría error)
+if (listaBiblioteca) {
+    // Cada pestaña, al pulsarla, muestra su estado
+    for (const pestana of pestanas) {
+        pestana.addEventListener("click", function () {
+            mostrarEstado(pestana.dataset.estado);
+        });
+    }
+
+    // Arrancamos: calculamos los números y mostramos "Leyendo"
+    actualizarContadores();
+    mostrarEstado("leyendo");
 }
 
-// Arrancamos: calculamos los números y mostramos "Leyendo"
-actualizarContadores();
-mostrarEstado("leyendo");
+// =========================================
+// BUSCADOR (index.html)
+// =========================================
+
+const formBuscador = document.querySelector(".buscador");
+const inputBusqueda = document.querySelector("#busqueda");
+const botonBuscar = document.querySelector(".buscador__boton");
+const seccionResultados = document.querySelector(".resultados");
+const listaResultados = document.querySelector(".resultados__lista");
+const mensajeResultados = document.querySelector(".resultados__mensaje");
+
+// AniList nos da el país de origen; con él sabemos el tipo de serie
+const tiposPorPais = {
+    JP: "Manga",
+    KR: "Manhwa",
+    CN: "Manhua",
+    TW: "Manhua"
+};
+
+// Devuelve el tipo a partir del país. Si el país no está en la lista, "Manga".
+function tipoDeSerie(pais) {
+    return tiposPorPais[pais] || "Manga";
+}
+
+// Devuelve el título en inglés; si no tiene, el título en japonés/coreano con letras latinas
+function tituloDeSerie(serie) {
+    return serie.title.english || serie.title.romaji;
+}
+
+// Crea un resultado (<li>) a partir de una serie de AniList.
+// Construye lo mismo que tenías escrito a mano en index.html.
+function crearResultado(serie) {
+    const item = document.createElement("li");
+
+    const enlace = document.createElement("a");
+    enlace.className = "resultado";
+    enlace.href = "serie.html?id=" + serie.id;
+
+    const portada = document.createElement("img");
+    portada.className = "resultado__portada";
+    portada.src = serie.coverImage.medium;
+    portada.alt = "";
+
+    const info = document.createElement("div");
+    info.className = "resultado__info";
+
+    const nombre = document.createElement("h3");
+    nombre.className = "resultado__nombre";
+    nombre.textContent = tituloDeSerie(serie);
+
+    // "Manhwa · 2018". Si AniList no sabe el año, solo el tipo.
+    const meta = document.createElement("p");
+    meta.className = "resultado__meta";
+    let textoMeta = tipoDeSerie(serie.countryOfOrigin);
+    if (serie.startDate.year) {
+        textoMeta = textoMeta + " · " + serie.startDate.year;
+    }
+    meta.textContent = textoMeta;
+
+    info.append(nombre, meta);
+    enlace.append(portada, info);
+    item.append(enlace);
+    return item;
+}
+
+// Enseña un mensaje en la zona de resultados ("Cargando…", errores...)
+function mostrarMensaje(texto) {
+    mensajeResultados.textContent = texto;
+    mensajeResultados.hidden = false;
+}
+
+// Busca en AniList y pinta los resultados (o un mensaje si algo va mal)
+async function hacerBusqueda(texto) {
+    // Preparamos la pantalla: mostramos la sección, vaciamos la lista y avisamos
+    seccionResultados.hidden = false;
+    listaResultados.replaceChildren();
+    mostrarMensaje("Cargando…");
+    botonBuscar.disabled = true;   // evita que se pulse varias veces seguidas
+
+    try {
+        // Intentamos buscar...
+        const series = await buscarSeries(texto);
+
+        if (series.length === 0) {
+            mostrarMensaje("No hay resultados para «" + texto + "».");
+            return;   // salimos de la función: no hay nada que pintar
+        }
+
+        mensajeResultados.hidden = true;
+        for (const serie of series) {
+            listaResultados.append(crearResultado(serie));
+        }
+    } catch (error) {
+        // ...y si algo falla, llegamos aquí
+        console.error(error);   // el detalle técnico, para ti, en la consola (F12)
+
+        if (!navigator.onLine) {
+            mostrarMensaje("Sin conexión. Revisa tu internet e inténtalo de nuevo.");
+        } else {
+            mostrarMensaje("No se ha podido buscar. Inténtalo de nuevo en un momento.");
+        }
+    } finally {
+        // Esto se ejecuta SIEMPRE, haya ido bien o mal
+        botonBuscar.disabled = false;
+    }
+}
+
+// Solo activamos el buscador si estamos en una página que lo tiene
+if (formBuscador) {
+    // "submit" salta al pulsar Buscar o al pulsar Enter dentro del input
+    formBuscador.addEventListener("submit", function (evento) {
+        // Por defecto, enviar un formulario recarga la página. Lo impedimos.
+        evento.preventDefault();
+
+        // trim() quita los espacios del principio y del final
+        const texto = inputBusqueda.value.trim();
+        if (texto === "") {
+            return;   // no buscamos si solo hay espacios
+        }
+
+        hacerBusqueda(texto);
+    });
+}

@@ -37,40 +37,21 @@
             <button type="submit" class="buscador__boton">Buscar</button>
         </form>
         
-        <section class="resultados" aria-live="polite">
+        <!-- Resultados de la búsqueda. Empieza oculta (hidden) hasta que se busca algo.
+             aria-live: los lectores de pantalla anuncian los cambios de esta zona -->
+        <section class="resultados" aria-live="polite" hidden>
             <h2 class="resultados__titulo">Resultados</h2>
 
-            <ul class="resultados__lista">
-                <li>
-                    <a href="serie.html?id=151807" class="resultado">
-                        <img
-                            src="https://placehold.co/60x90?text=Portada"
-                            alt=""
-                            class="resultado__portada"
-                        >
-                        <div class="resultado__info">
-                            <h3 class="resultado__nombre">Solo Leveling</h3>
-                            <p class="resultado__meta">Manhwa · 2018</p>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="serie.html?id=86635" class="resultado">
-                        <img
-                            src="https://placehold.co/60x90?text=Portada"
-                            alt=""
-                            class="resultado__portada"
-                        >
-                        <div class="resultado__info">
-                            <h3 class="resultado__nombre">Chainsaw Man</h3>
-                            <p class="resultado__meta">Manga · 2018</p>
-                        </div>
-                    </a>
-                </li>
-            </ul>
+            <!-- Mensajes: "Cargando…", "No hay resultados", errores -->
+            <p class="resultados__mensaje" hidden></p>
+
+            <!-- Los resultados los crea JavaScript (js/ui.js) -->
+            <ul class="resultados__lista"></ul>
         </section>
     </main>
-        <!-- Habla con la API de AniList -->
+    <!-- Habla con la API de AniList -->
     <script src="js/api.js"></script>
+    <!-- Pinta la pantalla. Va después porque usa funciones de api.js -->
+    <script src="js/ui.js"></script>
 </body>
 </html>
