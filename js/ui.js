@@ -43,5 +43,88 @@ const seriesDeEjemplo = [
     }
 ];
 
-// Prueba: muestra el array en la consola para comprobar que el archivo se carga
-console.log(seriesDeEjemplo);
+// =========================================
+// PINTAR LA BIBLIOTECA
+// =========================================
+
+// Buscamos en la página la lista <ul> donde irán las tarjetas
+const listaBiblioteca = document.querySelector(".biblioteca");
+
+// Crea la tarjeta (<li>) de UNA serie y la devuelve.
+// Construye lo mismo que tenías escrito a mano en el HTML.
+function crearTarjeta(serie) {
+    // <li class="tarjeta">
+    const tarjeta = document.createElement("li");
+    tarjeta.className = "tarjeta";
+
+    // --- Parte de arriba: enlace a la ficha con portada, título y tipo ---
+    const enlace = document.createElement("a");
+    enlace.className = "tarjeta__enlace";
+    enlace.href = "serie.html?id=" + serie.id;
+
+    const portada = document.createElement("img");
+    portada.className = "tarjeta__portada";
+    portada.src = serie.portada;
+    portada.alt = "";   // decorativa: el título ya dice qué serie es
+
+    const textos = document.createElement("div");
+
+    const nombre = document.createElement("h2");
+    nombre.className = "tarjeta__nombre";
+    nombre.textContent = serie.titulo;   // textContent: seguro, nunca ejecuta código
+
+    const meta = document.createElement("p");
+    meta.className = "tarjeta__meta";
+    meta.textContent = serie.tipo;
+
+    // Montamos las piezas: textos dentro del div, y portada + div dentro del enlace
+    textos.append(nombre, meta);
+    enlace.append(portada, textos);
+
+    // --- Parte de abajo: progreso, barra y botón +1 ---
+    const progreso = document.createElement("div");
+    progreso.className = "progreso tarjeta__progreso";
+
+    // Si no sabemos el total (null), mostramos "?"
+    const total = serie.total === null ? "?" : serie.total;
+
+    const texto = document.createElement("p");
+    texto.className = "progreso__texto";
+    texto.textContent = "Cap. " + serie.capitulo + " / " + total;
+    progreso.append(texto);
+
+    // La barra solo tiene sentido si conocemos el total
+    if (serie.total !== null) {
+        const barra = document.createElement("progress");
+        barra.className = "barra";
+        barra.max = serie.total;          // primero el máximo...
+        barra.value = serie.capitulo;     // ...y luego el valor
+        barra.textContent = serie.capitulo + " de " + serie.total;
+        progreso.append(barra);
+    }
+
+    const botonMas = document.createElement("button");
+    botonMas.type = "button";
+    botonMas.className = "boton boton--mas";
+    botonMas.textContent = "+1";
+    botonMas.setAttribute("aria-label", "Sumar un capítulo a " + serie.titulo);
+    progreso.append(botonMas);
+
+    // Metemos las dos partes en la tarjeta y la devolvemos
+    tarjeta.append(enlace, progreso);
+    return tarjeta;
+}
+
+// Recibe un array de series y pinta una tarjeta por cada una
+function pintarBiblioteca(series) {
+    // Vaciamos la lista por si ya tenía tarjetas (servirá cuando filtremos)
+    listaBiblioteca.replaceChildren();
+
+    // Recorremos el array: "para cada serie de la lista..."
+    for (const serie of series) {
+        listaBiblioteca.append(crearTarjeta(serie));
+    }
+}
+
+// Arrancamos: pintamos las series de ejemplo
+pintarBiblioteca(seriesDeEjemplo);
