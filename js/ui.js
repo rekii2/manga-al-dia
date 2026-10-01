@@ -44,6 +44,22 @@ const seriesDeEjemplo = [
 ];
 
 // =========================================
+// FUNCIONES DE AYUDA
+// Pequeñas funciones que usamos en varios sitios, para no repetir código.
+// =========================================
+
+// Devuelve el texto del progreso: "Cap. 7 / 24" o "Cap. 87 / ?" si no hay total
+function textoProgreso(serie) {
+    const total = serie.total === null ? "?" : serie.total;
+    return "Cap. " + serie.capitulo + " / " + total;
+}
+
+// Devuelve true si ya vas por el último capítulo (solo si conocemos el total)
+function haLlegadoAlFinal(serie) {
+    return serie.total !== null && serie.capitulo >= serie.total;
+}
+
+// =========================================
 // PINTAR LA BIBLIOTECA
 // =========================================
 
@@ -51,7 +67,6 @@ const seriesDeEjemplo = [
 const listaBiblioteca = document.querySelector(".biblioteca");
 
 // Crea la tarjeta (<li>) de UNA serie y la devuelve.
-// Construye lo mismo que tenías escrito a mano en el HTML.
 function crearTarjeta(serie) {
     // <li class="tarjeta">
     const tarjeta = document.createElement("li");
@@ -77,7 +92,6 @@ function crearTarjeta(serie) {
     meta.className = "tarjeta__meta";
     meta.textContent = serie.tipo;
 
-    // Montamos las piezas: textos dentro del div, y portada + div dentro del enlace
     textos.append(nombre, meta);
     enlace.append(portada, textos);
 
@@ -85,17 +99,16 @@ function crearTarjeta(serie) {
     const progreso = document.createElement("div");
     progreso.className = "progreso tarjeta__progreso";
 
-    // Si no sabemos el total (null), mostramos "?"
-    const total = serie.total === null ? "?" : serie.total;
-
     const texto = document.createElement("p");
     texto.className = "progreso__texto";
-    texto.textContent = "Cap. " + serie.capitulo + " / " + total;
+    texto.textContent = textoProgreso(serie);
     progreso.append(texto);
 
-    // La barra solo tiene sentido si conocemos el total
+    // La barra solo existe si conocemos el total.
+    // La declaramos FUERA del if (con let y vacía) para poder usarla luego en el +1.
+    let barra = null;
     if (serie.total !== null) {
-        const barra = document.createElement("progress");
+        barra = document.createElement("progress");
         barra.className = "barra";
         barra.max = serie.total;          // primero el máximo...
         barra.value = serie.capitulo;     // ...y luego el valor
@@ -108,6 +121,28 @@ function crearTarjeta(serie) {
     botonMas.className = "boton boton--mas";
     botonMas.textContent = "+1";
     botonMas.setAttribute("aria-label", "Sumar un capítulo a " + serie.titulo);
+
+    // Si ya vas por el último capítulo, el +1 empieza desactivado
+    botonMas.disabled = haLlegadoAlFinal(serie);
+
+    // Cuando pulsen el +1...
+    botonMas.addEventListener("click", function () {
+        // 1. Sumamos un capítulo EN LOS DATOS
+        serie.capitulo = serie.capitulo + 1;
+
+        // 2. Actualizamos lo que se ve: el texto...
+        texto.textContent = textoProgreso(serie);
+
+        // ...y la barra, si esta serie tiene
+        if (barra !== null) {
+            barra.value = serie.capitulo;
+            barra.textContent = serie.capitulo + " de " + serie.total;
+        }
+
+        // 3. Si hemos llegado al final, desactivamos el botón
+        botonMas.disabled = haLlegadoAlFinal(serie);
+    });
+
     progreso.append(botonMas);
 
     // Metemos las dos partes en la tarjeta y la devolvemos

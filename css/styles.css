@@ -235,6 +235,13 @@ body {
     filter: brightness(1.1);
 }
 
+/* Botón desactivado: más transparente y con cursor de "prohibido" */
+.boton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: none;        /* que no se ilumine al pasar el ratón */
+}
+
 /* Variante principal: fondo de color de acento */
 .boton--principal {
     width: 100%;
