@@ -7,6 +7,7 @@
 
     --espacio: 1rem;
     --radio: 8px;
+    --ancho-maximo: 900px;
 }
 
 
@@ -24,11 +25,17 @@ body {
 
 
 .cabecera {
+    background-color: var(--color-superficie);
+}
+
+/* La caja de dentro coloca el logo y el enlace, y no pasa del ancho máximo */
+.cabecera__interior {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between;   /* logo a la izquierda, enlace a la derecha */
     align-items: center;
     padding: var(--espacio);
-    background-color: var(--color-superficie);
+    max-width: var(--ancho-maximo);
+    margin: 0 auto;                   /* centrada, igual que .contenedor */
 }
 
 .cabecera__logo {
@@ -456,7 +463,7 @@ body {
 
     /* El contenido no crece más de 900px y queda centrado */
     .contenedor {
-        max-width: 900px;
+        max-width: var(--ancho-maximo);
         margin: 0 auto;
     }
 
