@@ -18,6 +18,7 @@
 
             <nav class="cabecera__nav">
                 <a href="biblioteca.html">Mi biblioteca</a>
+                <a href="cuenta.html">Mi cuenta</a>
             </nav>
         </div>
     </header>
@@ -62,6 +63,9 @@
                     </div>
 
                     <button type="button" class="boton boton--secundario" id="boton-quitar" hidden>Quitar de la lista</button>
+                    
+                    <!-- Errores al guardar (por ejemplo, sin conexión). Empieza oculto -->
+                    <p class="ficha__error" id="error-usuario" aria-live="polite" hidden></p>
                 </div>
                 </div>
             </div>
@@ -104,7 +108,11 @@
 
     <!-- Habla con la API de AniList -->
     <script src="js/api.js"></script>
-    <!-- Guarda y lee la biblioteca del usuario -->
+    <!-- Librería oficial de Supabase (desde una CDN). Crea la variable "supabase" -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Conexión con Supabase y funciones de cuentas -->
+    <script src="js/auth.js"></script>
+    <!-- Guarda y lee la biblioteca del usuario (en Supabase) -->
     <script src="js/storage.js"></script>
     <!-- Pinta la pantalla. Va después porque usa funciones de los otros dos -->
     <script src="js/ui.js"></script>

@@ -1,131 +1,131 @@
 // =========================================
-// ALMACENAMIENTO (localStorage)
+// ALMACENAMIENTO (Supabase)
 // Este archivo SOLO guarda y lee la biblioteca del usuario.
-// El resto de la web nunca toca localStorage directamente: siempre llama a estas funciones.
-// Así, en la fase 9 cambiaremos solo lo de dentro para usar Supabase.
+// El resto de la web nunca habla con la base de datos directamente: siempre llama a estas funciones.
+// Antes guardaba en localStorage; ahora guarda en la tabla "biblioteca" de Supabase.
+//
+// No hace falta decir de qué usuario son las filas:
+// - Al LEER, las reglas RLS solo devuelven las filas del usuario que ha iniciado sesión.
+// - Al AÑADIR, la columna user_id se rellena sola con auth.uid() (el valor por defecto de la tabla).
+//
+// Todas las funciones son async (hablan con internet) y lanzan un error si algo falla,
+// para que ui.js lo recoja con try/catch y enseñe un mensaje.
 // =========================================
 
-// Nombre con el que guardamos la biblioteca en localStorage
-const CLAVE_BIBLIOTECA = "mangaAlDia.biblioteca";
+// Nombre de la tabla en Supabase
+const TABLA_BIBLIOTECA = "biblioteca";
 
-// ---------- Funciones internas (solo las usa este archivo) ----------
+// ---------- Función interna (solo la usa este archivo) ----------
 
-// Lee la biblioteca de localStorage y la devuelve como array.
-// Si no hay nada guardado, o los datos están estropeados, devuelve un array vacío.
-function leerBiblioteca() {
-    try {
-        const texto = localStorage.getItem(CLAVE_BIBLIOTECA);
-
-        // Primera vez: todavía no hay nada guardado
-        if (texto === null) {
-            return [];
-        }
-
-        // JSON.parse convierte el texto guardado otra vez en un array de objetos
-        const datos = JSON.parse(texto);
-
-        // Si lo guardado no es un array (datos corruptos), empezamos de cero
-        if (!Array.isArray(datos)) {
-            return [];
-        }
-
-        return datos;
-    } catch (error) {
-        // Llegamos aquí si el texto no es JSON válido o el navegador bloquea localStorage
-        console.error("No se ha podido leer la biblioteca:", error);
-        return [];
-    }
-}
-
-// Guarda la biblioteca entera en localStorage
-function guardarBiblioteca(biblioteca) {
-    try {
-        // localStorage solo guarda texto: JSON.stringify convierte el array en texto
-        localStorage.setItem(CLAVE_BIBLIOTECA, JSON.stringify(biblioteca));
-    } catch (error) {
-        // Por ejemplo: navegación privada que no deja guardar, o almacenamiento lleno
-        console.error("No se ha podido guardar la biblioteca:", error);
-    }
+// Convierte una fila de la tabla en el objeto que usa ui.js.
+// En la tabla la columna se llama "anilist_id", pero ui.js usa "id" para el id de AniList.
+// Así ui.js no tiene que saber cómo son las columnas de la base de datos.
+function filaASerie(fila) {
+    return {
+        id: fila.anilist_id,
+        titulo: fila.titulo,
+        tipo: fila.tipo,
+        portada: fila.portada,
+        total: fila.total,
+        capitulo: fila.capitulo,
+        estado: fila.estado
+    };
 }
 
 // ---------- Funciones públicas (las usa ui.js) ----------
 
-// Devuelve todas las series guardadas
-function obtenerBiblioteca() {
-    return leerBiblioteca();
+// Devuelve todas las series del usuario, de la modificada más recientemente a la más antigua
+async function obtenerBiblioteca() {
+    const { data, error } = await clienteSupabase
+        .from(TABLA_BIBLIOTECA)                      // de la tabla biblioteca...
+        .select("*")                                 // ...todas las columnas...
+        .order("actualizado", { ascending: false }); // ...ordenadas por fecha, las últimas primero
+
+    if (error) {
+        throw error;
+    }
+
+    // map crea un array nuevo transformando cada fila con filaASerie
+    return data.map(filaASerie);
 }
 
-// Devuelve una serie guardada a partir de su id, o null si no está en la biblioteca
-function obtenerSerieGuardada(id) {
-    const biblioteca = leerBiblioteca();
-    // find devuelve el primer elemento que cumple la condición (o undefined si ninguno)
-    const serie = biblioteca.find(function (s) {
-        return s.id === id;
-    });
-    return serie || null;
+// Devuelve una serie guardada a partir de su id de AniList, o null si no está en la biblioteca
+async function obtenerSerieGuardada(id) {
+    const { data, error } = await clienteSupabase
+        .from(TABLA_BIBLIOTECA)
+        .select("*")
+        .eq("anilist_id", id)   // eq = "equal": donde anilist_id sea igual a id
+        .maybeSingle();         // esperamos una fila o ninguna (si no hay, data es null)
+
+    if (error) {
+        throw error;
+    }
+
+    if (data === null) {
+        return null;
+    }
+    return filaASerie(data);
 }
 
 // Añade una serie a la biblioteca con un estado. Empieza en el capítulo 0.
 // "serie" debe tener: id, titulo, tipo, portada y total.
-function anadirSerie(serie, estado) {
-    const biblioteca = leerBiblioteca();
+async function anadirSerie(serie, estado) {
+    const { error } = await clienteSupabase
+        .from(TABLA_BIBLIOTECA)
+        .insert({
+            anilist_id: serie.id,
+            titulo: serie.titulo,
+            tipo: serie.tipo,
+            portada: serie.portada,
+            total: serie.total,
+            capitulo: 0,
+            estado: estado
+            // user_id no hace falta: la base de datos pone el del usuario con sesión
+        });
 
-    // Si ya está en la biblioteca, no la añadimos dos veces
-    const yaExiste = biblioteca.some(function (s) {
-        return s.id === serie.id;
-    });
-    if (yaExiste) {
-        return;
+    if (error) {
+        throw error;
     }
-
-    biblioteca.push({
-        id: serie.id,
-        titulo: serie.titulo,
-        tipo: serie.tipo,
-        portada: serie.portada,
-        total: serie.total,
-        capitulo: 0,
-        estado: estado
-    });
-
-    guardarBiblioteca(biblioteca);
 }
 
 // Cambia el capítulo por el que vas de una serie
-function actualizarCapitulo(id, capitulo) {
-    const biblioteca = leerBiblioteca();
-    const serie = biblioteca.find(function (s) {
-        return s.id === id;
-    });
+async function actualizarCapitulo(id, capitulo) {
+    const { error } = await clienteSupabase
+        .from(TABLA_BIBLIOTECA)
+        .update({
+            capitulo: capitulo,
+            actualizado: new Date().toISOString()   // fecha y hora de ahora
+        })
+        .eq("anilist_id", id);
 
-    if (!serie) {
-        return;   // no está en la biblioteca: no hay nada que actualizar
+    if (error) {
+        throw error;
     }
-
-    serie.capitulo = capitulo;
-    guardarBiblioteca(biblioteca);
 }
 
 // Cambia el estado de una serie (leyendo, pendiente, terminada, abandonada)
-function cambiarEstado(id, estado) {
-    const biblioteca = leerBiblioteca();
-    const serie = biblioteca.find(function (s) {
-        return s.id === id;
-    });
+async function cambiarEstado(id, estado) {
+    const { error } = await clienteSupabase
+        .from(TABLA_BIBLIOTECA)
+        .update({
+            estado: estado,
+            actualizado: new Date().toISOString()
+        })
+        .eq("anilist_id", id);
 
-    if (!serie) {
-        return;
+    if (error) {
+        throw error;
     }
-
-    serie.estado = estado;
-    guardarBiblioteca(biblioteca);
 }
 
 // Quita una serie de la biblioteca
-function eliminarSerie(id) {
-    // filter se queda con todas MENOS la que tiene ese id
-    const biblioteca = leerBiblioteca().filter(function (s) {
-        return s.id !== id;
-    });
-    guardarBiblioteca(biblioteca);
+async function eliminarSerie(id) {
+    const { error } = await clienteSupabase
+        .from(TABLA_BIBLIOTECA)
+        .delete()
+        .eq("anilist_id", id);
+
+    if (error) {
+        throw error;
+    }
 }

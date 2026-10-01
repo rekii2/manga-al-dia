@@ -1,7 +1,8 @@
 // =========================================
 // INTERFAZ (ui.js)
 // Este archivo pinta la pantalla y reacciona a los clics.
-// Los datos de AniList los pide a api.js y la biblioteca la guarda/lee con storage.js.
+// Los datos de AniList los pide a api.js, la biblioteca la guarda/lee con storage.js (Supabase)
+// y las cuentas las gestiona auth.js.
 // =========================================
 
 // =========================================
@@ -86,22 +87,27 @@ function crearTarjeta(serie) {
     // Si ya vas por el último capítulo, el +1 empieza desactivado
     botonMas.disabled = haLlegadoAlFinal(serie);
 
-    // Cuando pulsen el +1...
-    botonMas.addEventListener("click", function () {
-        // 1. Sumamos un capítulo en los datos y lo GUARDAMOS (storage.js)
-        serie.capitulo = serie.capitulo + 1;
-        actualizarCapitulo(serie.id, serie.capitulo);
+    // Cuando pulsen el +1... (async porque guardar en Supabase tarda un poco)
+    botonMas.addEventListener("click", async function () {
+        botonMas.disabled = true;   // evita dobles clics mientras se guarda
 
-        // 2. Actualizamos lo que se ve: el texto...
-        texto.textContent = textoProgreso(serie);
+        try {
+            // 1. Guardamos en Supabase PRIMERO. Si falla, saltamos al catch y no cambiamos nada.
+            await actualizarCapitulo(serie.id, serie.capitulo + 1);
 
-        // ...y la barra, si esta serie tiene
-        if (barra !== null) {
-            barra.value = serie.capitulo;
-            barra.textContent = serie.capitulo + " de " + serie.total;
+            // 2. Ha ido bien: actualizamos los datos y lo que se ve (texto y barra)
+            serie.capitulo = serie.capitulo + 1;
+            texto.textContent = textoProgreso(serie);
+            if (barra !== null) {
+                barra.value = serie.capitulo;
+                barra.textContent = serie.capitulo + " de " + serie.total;
+            }
+        } catch (error) {
+            console.error(error);
+            mostrarMensajeBiblioteca("No se ha podido guardar el capítulo. Revisa tu conexión.");
         }
 
-        // 3. Si hemos llegado al final, desactivamos el botón
+        // 3. Volvemos a activar el botón (salvo que hayamos llegado al final)
         botonMas.disabled = haLlegadoAlFinal(serie);
     });
 
@@ -139,9 +145,19 @@ const nombresEstado = {
     abandonada: "Abandonada"
 };
 
-// Devuelve solo las series guardadas que tienen el estado indicado
+// Copia de la biblioteca del usuario. La pedimos a Supabase UNA vez al abrir la página
+// y la reutilizamos al cambiar de pestaña, para no pedirla cada vez.
+let bibliotecaActual = [];
+
+// Enseña un mensaje debajo de la lista ("Cargando…", errores, avisos)
+function mostrarMensajeBiblioteca(texto) {
+    mensajeVacio.textContent = texto;
+    mensajeVacio.hidden = false;
+}
+
+// Devuelve solo las series que tienen el estado indicado
 function seriesConEstado(estado) {
-    return obtenerBiblioteca().filter(function (serie) {
+    return bibliotecaActual.filter(function (serie) {
         return serie.estado === estado;
     });
 }
@@ -167,32 +183,51 @@ function mostrarEstado(estado) {
     pintarBiblioteca(seriesFiltradas);
 
     // 3. Si no hay ninguna, enseñamos el mensaje; si hay, lo ocultamos
-    if (obtenerBiblioteca().length === 0) {
+    if (bibliotecaActual.length === 0) {
         // La biblioteca entera está vacía (por ejemplo, la primera vez)
-        mensajeVacio.textContent = "Aún no tienes series. ¡Busca una en el inicio!";
-        mensajeVacio.hidden = false;
+        mostrarMensajeBiblioteca("Aún no tienes series. ¡Busca una en el inicio!");
     } else if (seriesFiltradas.length === 0) {
         // Hay series, pero ninguna con este estado
-        mensajeVacio.textContent = "No tienes series en «" + nombresEstado[estado] + "».";
-        mensajeVacio.hidden = false;
+        mostrarMensajeBiblioteca("No tienes series en «" + nombresEstado[estado] + "».");
     } else {
         mensajeVacio.hidden = true;
+    }
+}
+
+// Comprueba la sesión, pide la biblioteca a Supabase y la pinta
+async function cargarBiblioteca() {
+    mostrarMensajeBiblioteca("Cargando tu biblioteca…");
+
+    try {
+        // Sin sesión no hay biblioteca: avisamos y no seguimos
+        const usuario = await obtenerUsuario();
+        if (usuario === null) {
+            mostrarMensajeBiblioteca("Inicia sesión en «Mi cuenta» para ver tu biblioteca.");
+            return;
+        }
+
+        // Pedimos las series y las pintamos
+        bibliotecaActual = await obtenerBiblioteca();
+        actualizarContadores();
+        mostrarEstado("leyendo");
+    } catch (error) {
+        console.error(error);
+        mostrarMensajeBiblioteca("No se ha podido cargar tu biblioteca. Revisa tu conexión y recarga.");
     }
 }
 
 // Solo arrancamos la biblioteca si estamos en biblioteca.html
 // (en otras páginas no existe la lista y daría error)
 if (listaBiblioteca) {
-    // Cada pestaña, al pulsarla, muestra su estado
+    // Cada pestaña, al pulsarla, muestra su estado (con los datos que ya tenemos)
     for (const pestana of pestanas) {
         pestana.addEventListener("click", function () {
             mostrarEstado(pestana.dataset.estado);
         });
     }
 
-    // Arrancamos: calculamos los números y mostramos "Leyendo"
-    actualizarContadores();
-    mostrarEstado("leyendo");
+    // Arrancamos
+    cargarBiblioteca();
 }
 
 // =========================================
@@ -426,13 +461,52 @@ const progresoFicha = document.querySelector("#progreso-ficha");
 const textoProgresoFicha = document.querySelector("#progreso-ficha-texto");
 const botonMasFicha = document.querySelector("#boton-mas-ficha");
 const botonQuitar = document.querySelector("#boton-quitar");
+const errorUsuario = document.querySelector("#error-usuario");
 
 // La serie de AniList que se está viendo. Se rellena al cargar la ficha.
 let serieActual = null;
 
-// Enseña unas partes u otras según si la serie está en tu biblioteca o no
-function pintarBloqueUsuario() {
-    const guardada = obtenerSerieGuardada(serieActual.id);
+// ¿Hay alguien con sesión iniciada? Lo guardamos al pintar el bloque.
+let hayUsuario = false;
+
+// ¿Has llegado al último capítulo? Si es así, el +1 debe quedarse desactivado.
+let finAlcanzado = false;
+
+// Enseña un error pequeño en el bloque del usuario
+function mostrarErrorUsuario(texto) {
+    errorUsuario.textContent = texto;
+    errorUsuario.hidden = false;
+}
+
+// Desactiva o activa todos los controles del bloque (mientras se guarda en Supabase)
+function bloquearControles(bloquear) {
+    botonAnadir.disabled = bloquear;
+    selectEstado.disabled = bloquear;
+    botonMasFicha.disabled = bloquear || finAlcanzado;   // || = "o"
+    botonQuitar.disabled = bloquear;
+}
+
+// Enseña unas partes u otras según si hay sesión y si la serie está en tu biblioteca
+async function pintarBloqueUsuario() {
+    errorUsuario.hidden = true;
+    finAlcanzado = false;
+
+    // 1. ¿Hay sesión? Si no, el botón invita a iniciarla
+    const usuario = await obtenerUsuario();
+    hayUsuario = usuario !== null;
+
+    if (!hayUsuario) {
+        botonAnadir.textContent = "Inicia sesión para añadir";
+        botonAnadir.hidden = false;
+        selectEstado.hidden = true;
+        progresoFicha.hidden = true;
+        botonQuitar.hidden = true;
+        return;
+    }
+
+    // 2. Hay sesión: ¿está esta serie en su biblioteca?
+    botonAnadir.textContent = "Añadir a la lista";
+    const guardada = await obtenerSerieGuardada(serieActual.id);
 
     // No está en tu biblioteca: solo el botón "Añadir a la lista"
     if (guardada === null) {
@@ -452,40 +526,65 @@ function pintarBloqueUsuario() {
     // Rellenamos con lo guardado
     selectEstado.value = guardada.estado;   // el desplegable muestra tu estado
     textoProgresoFicha.textContent = textoProgreso(guardada);
-    botonMasFicha.disabled = haLlegadoAlFinal(guardada);
+    finAlcanzado = haLlegadoAlFinal(guardada);
+    botonMasFicha.disabled = finAlcanzado;
+}
+
+// Hace una acción con Supabase (añadir, +1, quitar...) y después repinta el bloque.
+// "accion" es una función async. Así no repetimos el mismo try/catch en cada botón.
+async function ejecutarAccionUsuario(accion) {
+    bloquearControles(true);
+    try {
+        await accion();
+        await pintarBloqueUsuario();
+    } catch (error) {
+        console.error(error);
+        mostrarErrorUsuario("No se ha podido guardar. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
+        bloquearControles(false);
+    }
 }
 
 // Solo en serie.html: conectamos los botones del bloque del usuario
 if (fichaSerie) {
-    // Añadir a la lista: guardamos los datos básicos de la serie, en "Pendiente"
+    // Añadir a la lista (o ir a "Mi cuenta" si no hay sesión)
     botonAnadir.addEventListener("click", function () {
-        anadirSerie({
-            id: serieActual.id,
-            titulo: tituloDeSerie(serieActual),
-            tipo: tipoDeSerie(serieActual.countryOfOrigin),
-            portada: serieActual.coverImage.medium,
-            total: serieActual.chapters      // null si AniList no lo sabe
-        }, "pendiente");
+        if (!hayUsuario) {
+            window.location.href = "cuenta.html";   // nos vamos a la página de la cuenta
+            return;
+        }
 
-        pintarBloqueUsuario();
+        ejecutarAccionUsuario(async function () {
+            await anadirSerie({
+                id: serieActual.id,
+                titulo: tituloDeSerie(serieActual),
+                tipo: tipoDeSerie(serieActual.countryOfOrigin),
+                portada: serieActual.coverImage.medium,
+                total: serieActual.chapters      // null si AniList no lo sabe
+            }, "pendiente");
+        });
     });
 
     // Cambiar el estado en el desplegable ("change" salta al elegir otra opción)
     selectEstado.addEventListener("change", function () {
-        cambiarEstado(serieActual.id, selectEstado.value);
+        ejecutarAccionUsuario(async function () {
+            await cambiarEstado(serieActual.id, selectEstado.value);
+        });
     });
 
-    // +1: leemos el capítulo guardado, sumamos uno, guardamos y repintamos
+    // +1: leemos el capítulo guardado, sumamos uno y guardamos
     botonMasFicha.addEventListener("click", function () {
-        const guardada = obtenerSerieGuardada(serieActual.id);
-        actualizarCapitulo(serieActual.id, guardada.capitulo + 1);
-        pintarBloqueUsuario();
+        ejecutarAccionUsuario(async function () {
+            const guardada = await obtenerSerieGuardada(serieActual.id);
+            await actualizarCapitulo(serieActual.id, guardada.capitulo + 1);
+        });
     });
 
     // Quitar de la lista
     botonQuitar.addEventListener("click", function () {
-        eliminarSerie(serieActual.id);
-        pintarBloqueUsuario();
+        ejecutarAccionUsuario(async function () {
+            await eliminarSerie(serieActual.id);
+        });
     });
 }
 
@@ -505,13 +604,22 @@ async function cargarFicha() {
         const serie = await obtenerSerie(id);
         pintarFicha(serie);
 
-        // Guardamos la serie que se está viendo y pintamos tu bloque (añadir/estado/progreso)
-        serieActual = serie;
-        pintarBloqueUsuario();
-
         // Todo listo: ocultamos el mensaje y enseñamos la ficha
         mensajeFicha.hidden = true;
         fichaSerie.hidden = false;
+
+        // Guardamos la serie que se está viendo y pintamos tu bloque (añadir/estado/progreso).
+        // Va aparte: si Supabase fallara, la ficha de AniList se sigue viendo igual.
+        serieActual = serie;
+        bloquearControles(true);
+        pintarBloqueUsuario()
+            .catch(function (error) {
+                console.error(error);
+                mostrarErrorUsuario("No se ha podido cargar tu biblioteca. Revisa tu conexión.");
+            })
+            .finally(function () {
+                bloquearControles(false);
+            });
     } catch (error) {
         console.error(error);
 

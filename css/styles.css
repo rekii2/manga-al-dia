@@ -71,6 +71,12 @@ body {
     text-decoration: none;
 }
 
+/* Enlaces de la cabecera en fila, con hueco entre ellos */
+.cabecera__nav {
+    display: flex;
+    gap: var(--espacio);
+}
+
 .cabecera__nav a:hover,
 .cabecera__nav a:focus {
     text-decoration: underline;
@@ -353,6 +359,12 @@ body {
 .progreso__texto {
     margin: 0;
     font-weight: bold;
+}
+
+/* Enlaces de la cabecera en fila, con hueco entre ellos */
+.cabecera__nav {
+    display: flex;
+    gap: var(--espacio);
 }
 
 /* =========================================
