@@ -9,6 +9,7 @@
     --color-texto: #e8e9ec;
     --color-texto-suave: #a0a4ad;
     --color-acento: #6ea8fe;
+    --color-error: #ff8a8a;
 
     --espacio: 1rem;
     --radio: 8px;
@@ -575,4 +576,66 @@ body {
         font-size: 2rem;
     }
 
+}
+
+
+
+/* =========================================
+   13. CUENTA (registro e inicio de sesión)
+   ========================================= */
+
+/* La página de cuenta no necesita ser muy ancha */
+.cuenta {
+    max-width: 400px;
+}
+
+/* Formulario: un campo debajo de otro */
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio);
+}
+
+/* Cada campo: etiqueta encima y caja de texto debajo */
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.campo__etiqueta {
+    font-size: 0.875rem;
+    color: var(--color-texto-suave);
+}
+
+.campo__input {
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: var(--color-texto);
+    background-color: var(--color-superficie);
+    border: 1px solid var(--color-texto-suave);
+    border-radius: var(--radio);
+}
+
+.campo__input:focus {
+    outline: none;
+    border-color: var(--color-acento);
+}
+
+/* Los dos botones, uno debajo del otro */
+.formulario__botones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Mensajes de la cuenta */
+.cuenta__mensaje {
+    margin: 0 0 var(--espacio);
+    color: var(--color-texto-suave);
+}
+
+/* Mensaje de error: en rojo suave */
+.cuenta__mensaje--error {
+    color: var(--color-error);
 }

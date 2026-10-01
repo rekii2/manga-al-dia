@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Hace que en el móvil la página se vea a su tamaño real, sin alejarse -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi cuenta · Manga al Día</title>
+    <!-- Conecta la hoja de estilos. La ruta es relativa a este archivo -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Cabecera: se repite igual en todas las páginas -->
+    <header class="cabecera">
+        <!-- Caja interior: alinea logo y enlace con la columna del contenido -->
+        <div class="cabecera__interior">
+            <a href="index.html" class="cabecera__logo">Manga al Día</a>
+
+            <nav class="cabecera__nav">
+                <a href="index.html">Inicio</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="contenedor">
+        <section class="cuenta">
+            <h1 class="pagina__titulo">Mi cuenta</h1>
+
+            <!-- Mensajes: "Cargando…", errores, avisos. aria-live: los lectores de pantalla los anuncian -->
+            <p class="cuenta__mensaje" id="mensaje-cuenta" aria-live="polite">Cargando…</p>
+
+            <!-- SIN sesión: formulario para entrar o crear cuenta (empieza oculto) -->
+            <form class="formulario" id="form-cuenta" hidden>
+                <div class="campo">
+                    <label for="email" class="campo__etiqueta">Correo electrónico</label>
+                    <!-- type="email": el navegador comprueba que tenga forma de correo -->
+                    <input type="email" id="email" name="email" class="campo__input"
+                           autocomplete="email" required>
+                </div>
+
+                <div class="campo">
+                    <label for="contrasena" class="campo__etiqueta">Contraseña (mínimo 8 caracteres)</label>
+                    <!-- type="password": oculta lo que escribes -->
+                    <input type="password" id="contrasena" name="contrasena" class="campo__input"
+                           autocomplete="current-password" minlength="8" required>
+                </div>
+
+                <!-- Dos botones que envían el mismo formulario. El "value" dice cuál se ha pulsado -->
+                <div class="formulario__botones">
+                    <button type="submit" class="boton boton--principal" value="entrar">Iniciar sesión</button>
+                    <button type="submit" class="boton boton--secundario" value="registrar">Crear cuenta nueva</button>
+                </div>
+            </form>
+
+            <!-- CON sesión: quién eres y botón para salir (empieza oculto) -->
+            <div class="cuenta__sesion" id="sesion-cuenta" hidden>
+                <p>Has iniciado sesión como <strong id="email-usuario"></strong>.</p>
+                <button type="button" class="boton boton--secundario" id="boton-salir">Cerrar sesión</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Librería oficial de Supabase (desde una CDN). Crea la variable "supabase" -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Conexión con Supabase y funciones de cuentas -->
+    <script src="js/auth.js"></script>
+    <!-- Pinta la pantalla. Va al final porque usa funciones de los anteriores -->
+    <script src="js/ui.js"></script>
+</body>
+</html>

@@ -527,3 +527,112 @@ async function cargarFicha() {
 if (fichaSerie) {
     cargarFicha();
 }
+
+// =========================================
+// CUENTA (cuenta.html): registro, inicio y cierre de sesión
+// =========================================
+
+const formCuenta = document.querySelector("#form-cuenta");
+const inputEmail = document.querySelector("#email");
+const inputContrasena = document.querySelector("#contrasena");
+const mensajeCuenta = document.querySelector("#mensaje-cuenta");
+const sesionCuenta = document.querySelector("#sesion-cuenta");
+const emailUsuario = document.querySelector("#email-usuario");
+const botonSalir = document.querySelector("#boton-salir");
+
+// Supabase da los errores en inglés y con un código. Traducimos los más habituales.
+const erroresCuenta = {
+    invalid_credentials: "Correo o contraseña incorrectos.",
+    user_already_exists: "Ya existe una cuenta con ese correo. Prueba a iniciar sesión.",
+    email_exists: "Ya existe una cuenta con ese correo. Prueba a iniciar sesión.",
+    weak_password: "La contraseña es demasiado débil. Usa al menos 8 caracteres.",
+    email_address_invalid: "Ese correo no es válido.",
+    over_request_rate_limit: "Demasiados intentos seguidos. Espera un momento y vuelve a probar."
+};
+
+// Enseña un mensaje en la página de la cuenta. Si esError es true, sale en rojo.
+function mostrarMensajeCuenta(texto, esError) {
+    mensajeCuenta.textContent = texto;
+    mensajeCuenta.hidden = false;
+    // classList.toggle(clase, condición): pone la clase si la condición es true, la quita si es false
+    mensajeCuenta.classList.toggle("cuenta__mensaje--error", esError);
+}
+
+// Pregunta a Supabase si hay sesión y enseña el formulario o "Has iniciado sesión como…"
+async function pintarCuenta() {
+    const usuario = await obtenerUsuario();
+
+    if (usuario === null) {
+        // Nadie ha entrado: formulario visible, bloque de sesión oculto
+        formCuenta.hidden = false;
+        sesionCuenta.hidden = true;
+    } else {
+        // Hay sesión: ocultamos el formulario y enseñamos el correo
+        formCuenta.hidden = true;
+        sesionCuenta.hidden = false;
+        emailUsuario.textContent = usuario.email;
+    }
+}
+
+// Solo en cuenta.html
+if (formCuenta) {
+    // Al enviar el formulario (con cualquiera de los dos botones)...
+    formCuenta.addEventListener("submit", async function (evento) {
+        evento.preventDefault();   // que no recargue la página
+
+        // evento.submitter es el botón que se ha pulsado; su value dice cuál ("entrar" o "registrar")
+        const accion = evento.submitter.value;
+        const email = inputEmail.value.trim();
+        const contrasena = inputContrasena.value;
+
+        // Desactivamos los botones mientras esperamos a Supabase
+        const botones = formCuenta.querySelectorAll("button");
+        for (const boton of botones) {
+            boton.disabled = true;
+        }
+        mostrarMensajeCuenta("Un momento…", false);
+
+        try {
+            if (accion === "registrar") {
+                await registrarse(email, contrasena);
+                mostrarMensajeCuenta("¡Cuenta creada! Ya has iniciado sesión.", false);
+            } else {
+                await iniciarSesion(email, contrasena);
+                mostrarMensajeCuenta("¡Hola de nuevo! Has iniciado sesión.", false);
+            }
+            formCuenta.reset();   // vacía los campos
+            await pintarCuenta();
+        } catch (error) {
+            console.error(error);
+            // Si conocemos el código del error, lo traducimos; si no, un mensaje general
+            const texto = erroresCuenta[error.code] || "No se ha podido completar. Revisa los datos e inténtalo de nuevo.";
+            mostrarMensajeCuenta(texto, true);
+        } finally {
+            for (const boton of botones) {
+                boton.disabled = false;
+            }
+        }
+    });
+
+    // Cerrar sesión
+    botonSalir.addEventListener("click", async function () {
+        try {
+            await cerrarSesion();
+            mostrarMensajeCuenta("Has cerrado sesión.", false);
+            await pintarCuenta();
+        } catch (error) {
+            console.error(error);
+            mostrarMensajeCuenta("No se ha podido cerrar la sesión. Inténtalo de nuevo.", true);
+        }
+    });
+
+    // Al abrir la página: miramos si ya hay sesión
+    pintarCuenta()
+        .then(function () {
+            mensajeCuenta.hidden = true;   // quitamos el "Cargando…"
+        })
+        .catch(function (error) {
+            console.error(error);
+            mostrarMensajeCuenta("No se ha podido conectar con el servidor. Revisa tu conexión y recarga.", true);
+        });
+}
