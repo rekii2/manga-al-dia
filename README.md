@@ -1,4 +1,5 @@
 ## Manga al Día
+🔗 **Web publicada:** https://manga-al-dia.vercel.app
 
 Web para llevar al día tus lecturas de manga, manhwa y manhua: busca cualquier serie,
 añádela a tu biblioteca y apunta por qué capítulo vas con un solo toque.
